@@ -4,6 +4,7 @@ import requests
 import json
 import random
 from replit import db
+from keep_alive import keep_alive
 
 client = discord.Client()
 def get_joke():
@@ -153,4 +154,5 @@ async def on_message(message):
       jokes = db["jokes"]
     await message.channel.send(jokes)
 
+keep_alive()
 client.run(os.getenv('TOKEN'))
