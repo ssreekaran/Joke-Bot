@@ -6,7 +6,6 @@ import random
 from replit import db
 
 client = discord.Client()
-
 def get_joke():
   response = requests.get("https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,religious,political,racist,sexist,explicit")
   json_data = json.loads(response.text)
@@ -70,15 +69,6 @@ def get_xmas_joke():
     quote = json_data["setup"] + " -" + json_data["delivery"]
   return(quote)
 
-#def get_quote():
-#  response = requests.get("https://zenquotes.io/api/random")
-#  json_data = json.loads(response.text)
-#  quote = json_data[0]['q'] + " -" + json_data[0]['a']
-#  return(quote)
-
-custom_jokes = ["Why did the programmer cross the road? - To get to the other side.", get_joke(), get_prog_joke(), get_misc_joke(), get_pun_joke(), get_spok_joke(), get_xmas_joke()]
-sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
-
 def update_cust_joke(cust_joke):
   if "jokes" in db.keys():
     jokes = db["jokes"]
@@ -102,7 +92,14 @@ async def on_message(message):
   if message.author == client.user:
     return
   msg = message.content
-    
+
+  custom_jokes = ["Why did the programmer cross the road? - To get to the other side."]
+  all_jokes = ["Why did the programmer cross the road? - To get to the other side.", get_joke(), get_prog_joke(), get_misc_joke(), get_pun_joke(), get_spok_joke(), get_xmas_joke()]
+  sad_words = ["sad", "unhappy", "sorrowful", "dejected", "regretful", "depressed", "downcast", "miserable", "downhearted", "despondent", "despairing", "disconsolate", "out of sorts"]
+
+  if message.content.startswith('$commands'):
+    await message.channel.send("$joke: prints any joke from the joke API or custom ones\n$prog: prints programming jokes from the joke API\n$misc: prints miscellaneous jokes from the joke API\n$dark: prints dark jokes from the joke API\n$pun: prints punny jokes from the joke API\n$spok: prints halloween themed jokes from the joke API\n$xmas: prints christmas themed jokes from the joke API\n$cust: prints custom jokes that can be added by users\n$new: used to add custom jokes, by adding the joke after the command\n$del: deletes custom jokes, by adding the index of the joke after the command")
+  
   if message.content.startswith('$joke'):
     joke = get_joke()
     await message.channel.send(joke)
@@ -131,11 +128,29 @@ async def on_message(message):
     joke = get_xmas_joke()
     await message.channel.send(joke)
 
-  options = custom_jokes
+  options = all_jokes
   if "jokes" in db.keys():
-    options = options + db["jokes"]
+    options.extend(db["jokes"])
+
+  if message.content.startswith('$cust'):
+    joke = custom_jokes
+    joke.extend(db["jokes"])
+    await message.channel.send(random.choice(joke))
 
   if any(word in msg for word in sad_words):
-    await message.channel.send("Don\'t be sad, here\'s a joke. \n" + random.choice(custom_jokes))
+    await message.channel.send("Don\'t be sad, here\'s a joke. \n" + random.choice(options))
+
+  if msg.startswith("$new"):
+    all_jokes = msg.split("$new ",1)[1]
+    update_cust_joke(all_jokes)
+    await message.channel.send("New joke added.")
+
+  if msg.startswith("$del"):
+    jokes = []
+    if "jokes" in db.keys():
+      index = int(msg.split("$del",1)[1])
+      delete_joke(index)
+      jokes = db["jokes"]
+    await message.channel.send(jokes)
 
 client.run(os.getenv('TOKEN'))
