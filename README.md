@@ -1,6 +1,6 @@
 # Joke-Bot
 
-This bot uses an API I found online that tells jokes based on commands that it reads from the channels it's in, and if you say a sad word. The bot uses Replits database to store the custom jokes added by users.
+This bot uses an API I found online that tells jokes based on commands that it reads from the channels it's in, and if you say a sad word. The bot uses Replits database to store the custom jokes added by users. It also creates a web server because Replit runs web servers for an hour after there is no activity in the background and with an the help of Uptimerobot, I am able to ping the webserver every 30 minutes, so it is up indefinitely.
 
 A list of commands are as follows:
 $commands: lists all the commands
